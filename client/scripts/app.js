@@ -1,11 +1,12 @@
 // YOUR CODE HERE:
 var App = function() {
-
+  this.friendList = {};
 };
 
 
 App.prototype.init = function( ) {
-
+  this.friendList = null;
+  this.friendList = {};
 };
 
 App.prototype.send = function(message) {
@@ -13,8 +14,10 @@ App.prototype.send = function(message) {
     // This is the url you should use to communicate with the parse API server.
     url: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
     type: 'POST',
-    data: message,
-    contentType: 'application/json',
+    // processData: false,
+    data: JSON.stringify(message),
+    // data: message,
+    contentType: 'application/JSON',
     success: function (data) {
       console.log('chatterbox: Message sent');
     },
@@ -46,14 +49,15 @@ App.prototype.clearMessages = function() {
   $('#chats').html('');
 };
 
-App.prototype.renderMessage = function(message) {
+App.prototype.renderMessage = function({username, text, roomname}) {
   var $message = $('<div></div>');
   $message.addClass('chat');
-  var user = window.location.search;
-  var $username = $('<h3></h3>');
-  $username.text(user.slice(10));
+  var $username = $('<div></div>');
+  $username.addClass('username');
+  $username.attr('data-user', username);
+  $username.text(username);
   var $text = $('<p></p>');
-  $text.text(message);
+  $text.text(text);
   $message.append($username);
   $message.append($text);
   $('#chats').append($message);
@@ -65,27 +69,48 @@ App.prototype.renderRoom = function(room) {
   $('#roomSelect').append($room);
 };
 
+App.prototype.handleUsernameClick = function(username) {
+  this.friendList[username] = username;
+};
+
+App.prototype.handleSubmit = function() {
+
+
+};
+
 var app = new App();
 
 $( document ).ready(function() {
+
   $('#messageInput').on('click', function() {
     if ( $('#messageInput').val() === 'Talk to me!' ) {
       $('#messageInput').val('');
     }
   });
+
   $('#messageInput').keypress(function(key) {
     if ( key.which === 13 ) {
-      var value = $('#messageInput').val(); 
-      app.renderMessage(value);
+      var text = $('#messageInput').val();
+      var username = window.location.search.slice(10);
+      app.renderMessage({username, text});
       $('#messageInput').val('');
 
     }
   });
+
   $('button').on('click', function() {
-    var message = $('#messageInput').val();
-    app.renderMessage(message);
-    $('#messageInput').val('');
+    var text = $('#messageInput').val();
+    var username = window.location.search.slice(10);
+    app.renderMessage({username, text});
+    $('#messageInput').val('Talk to me!');
   });
+  
+  $('#chats').on('click', '.username', function() {
+    var name = $(this).data('user');
+    console.log('clicked', name);
+    app.handleUsernameClick(name);
+  });
+
 });
 
 
