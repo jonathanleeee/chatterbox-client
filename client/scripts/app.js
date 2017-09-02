@@ -3,7 +3,6 @@ var App = function() {
 
 };
 
-var app = new App();
 
 App.prototype.init = function( ) {
 
@@ -49,9 +48,13 @@ App.prototype.clearMessages = function() {
 
 App.prototype.renderMessage = function(message) {
   var $message = $('<div></div>');
-  $message.addClass('message'); 
+  $message.addClass('chat');
+  var user = window.location.search;
+  var $username = $('<h3></h3>');
+  $username.text(user.slice(10));
   var $text = $('<p></p>');
   $text.text(message);
+  $message.append($username);
   $message.append($text);
   $('#chats').append($message);
 };
@@ -62,10 +65,26 @@ App.prototype.renderRoom = function(room) {
   $('#roomSelect').append($room);
 };
 
+var app = new App();
+
 $( document ).ready(function() {
-  $('#messageInput').keypress(function() {
-    var value = $('#messageInput').val(); 
-    app.renderMessage(value);
+  $('#messageInput').on('click', function() {
+    if ( $('#messageInput').val() === 'Talk to me!' ) {
+      $('#messageInput').val('');
+    }
+  });
+  $('#messageInput').keypress(function(key) {
+    if ( key.which === 13 ) {
+      var value = $('#messageInput').val(); 
+      app.renderMessage(value);
+      $('#messageInput').val('');
+
+    }
+  });
+  $('button').on('click', function() {
+    var message = $('#messageInput').val();
+    app.renderMessage(message);
+    $('#messageInput').val('');
   });
 });
 
