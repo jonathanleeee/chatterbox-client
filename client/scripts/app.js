@@ -1,18 +1,52 @@
 // YOUR CODE HERE:
 var App = function() {
-  this.friendList = {};
+  this.server = 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages';
+  this.username = window.location.search.slice(10);
+  this.lastId = null;
+  this.roomname = 'lobby';
 };
 
 
 App.prototype.init = function( ) {
-  this.friendList = null;
-  this.friendList = {};
+  var context = this;
+
+  $( document ).ready(function() {
+
+    $('#messageInput').keypress(function(key) {
+      if ( key.which === 13 ) {
+        var text = $('#messageInput').val();
+        var username = context.username;
+        app.send({username, text});
+        $('#messageInput').val('');
+      }
+    });
+
+    $('button').on('click', function() {
+      var text = $('#messageInput').val();
+      var username = context.username;
+      app.send({username, text});
+      $('#messageInput').val('');
+    });
+    
+    $('#chats').on('click', '.username', function() {
+      var name = $(this).data('user');
+      console.log('clicked', name);
+      app.handleUsernameClick(name);
+    });
+
+  });
+
+  this.fetch();
+
+  setInterval(function() {
+    this.fetch();
+  }.bind(this), 800);
 };
 
 App.prototype.send = function(message) {
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
-    url: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
+    url: this.server,
     type: 'POST',
     // processData: false,
     data: JSON.stringify(message),
@@ -29,14 +63,19 @@ App.prototype.send = function(message) {
 };    
 
 App.prototype.fetch = function(link) {
+  var context = this;
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
-    url: link,
+    url: this.server,
     type: 'GET',
-    data: message,
-    contentType: 'application/json',
+    data: {order: '-createdAt'},
     success: function (data) {
-      console.log('chatterbox: Message sent');
+      data.results.forEach( function(message) {
+        if ( context.lastId !== message.objectId ) {
+          context.renderMessage(message);
+          context.lastId = message.objectId;
+        }
+      });
     },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -80,38 +119,8 @@ App.prototype.handleSubmit = function() {
 
 var app = new App();
 
-$( document ).ready(function() {
+app.init();
 
-  $('#messageInput').on('click', function() {
-    if ( $('#messageInput').val() === 'Talk to me!' ) {
-      $('#messageInput').val('');
-    }
-  });
-
-  $('#messageInput').keypress(function(key) {
-    if ( key.which === 13 ) {
-      var text = $('#messageInput').val();
-      var username = window.location.search.slice(10);
-      app.renderMessage({username, text});
-      $('#messageInput').val('');
-
-    }
-  });
-
-  $('button').on('click', function() {
-    var text = $('#messageInput').val();
-    var username = window.location.search.slice(10);
-    app.renderMessage({username, text});
-    $('#messageInput').val('Talk to me!');
-  });
-  
-  $('#chats').on('click', '.username', function() {
-    var name = $(this).data('user');
-    console.log('clicked', name);
-    app.handleUsernameClick(name);
-  });
-
-});
 
 
 
