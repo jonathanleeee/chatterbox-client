@@ -26,16 +26,21 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
-      <h3>Choose your room!</h3>
-      <select id="roomSelector">
-        <option>Room Name</option>
-      </select> 
-      <!-- Your HTML goes here! -->
+      <div id=rooms>
+        <h3>Choose your room!</h3>
+        <select id="roomSelect"></select>
+      </div>
     </div>
-    <div id="input">
+    <form action="#" id="send" method="post">
       <input id="messageInput" type="search" placeholder="Talk to me!" />
-      <button>Submit</button>
-    </div>
+      <input type="submit" class="submit" />
+      <img class='spinner' src="images/spiffygif_46x46.gif">
+    </form>
     <div id="chats"></div>
+    <script>
+      $(function(){
+        app.init();
+      });
+    </script>
   </body>
 </html>
